@@ -1,41 +1,71 @@
 import { createStore } from 'redux';
-const plus = document.querySelector('.plus');
-const minus = document.querySelector('.minus');
-const result = document.querySelector('.result');
+const form = document.querySelector('form');
+const input = document.querySelector('input');
+const ul = document.querySelector('ul');
 
-// Actions
-const ADD = 'ADD';
-const MINUS = 'MINUS';
+const ADD_TODO = 'ADD_TODO';
+const DELETE_TODO = 'MINUS_TODO';
 
-const reducer = (state = 0, action) => {
+// *************************************
+// Action creators
+const addToDo = (text) => ({
+    type: ADD_TODO,
+    text,
+    id: Date.now(),
+});
+
+const deleteToDo = (id) => ({
+    type: DELETE_TODO,
+    id,
+});
+// *************************************
+
+const reducer = (state = [], action) => {
     switch (action.type) {
-        case ADD:
-            return state + 1;
-        case MINUS:
-            return state - 1;
+        case ADD_TODO:
+            return [...state, { text: action.text, id: action.id }];
+        case DELETE_TODO:
+            return state.filter((toDo) => toDo.id !== action.id);
         default:
             return state;
     }
 };
 
-const handleAdd = () => {
-    countStore.dispatch({ type: ADD });
+const store = createStore(reducer);
+
+// *************************************
+const dispatchAddToDo = (text) => {
+    store.dispatch(addToDo(text));
 };
 
-const handleMinus = () => {
-    countStore.dispatch({ type: MINUS });
+const dispatchDeleteToDo = (e) => {
+    const id = parseInt(e.target.parentNode.id);
+    store.dispatch(deleteToDo(id));
+};
+// *************************************
+
+const paintToDos = () => {
+    const toDos = store.getState();
+    ul.innerHTML = '';
+    toDos.forEach((toDo) => {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.innerText = 'DEL';
+        btn.addEventListener('click', dispatchDeleteToDo);
+        li.id = toDo.id;
+        li.innerText = toDo.text;
+        li.appendChild(btn);
+        ul.appendChild(li);
+    });
 };
 
-/**
- * Observer
- * The observer object should have a `next` method?
- */
-const onChange = () => {
-    result.innerText = countStore.getState();
+store.subscribe(paintToDos);
+
+const onSubmit = (e) => {
+    e.preventDefault();
+    const toDo = input.value;
+    input.value = '';
+    dispatchAddToDo(toDo);
 };
 
-plus.addEventListener('click', handleAdd);
-minus.addEventListener('click', handleMinus);
-
-const countStore = createStore(reducer);
-const unsubscribe = countStore.subscribe(onChange);
+form.addEventListener('submit', onSubmit);
