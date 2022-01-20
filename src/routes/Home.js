@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import ToDo from '../components/ToDo';
 import { actionCreators } from '../store';
 
-const Home = ({ toDos, addToDo, deleteToDo }) => {
+const Home = ({ toDos, addToDo }) => {
     const [text, setText] = useState('');
 
     const onChange = (e) => {
@@ -16,10 +16,6 @@ const Home = ({ toDos, addToDo, deleteToDo }) => {
         setText('');
     };
 
-    const onDelete = (targetId) => {
-        deleteToDo(parseInt(targetId));
-    };
-
     return (
         <>
             <h1>To Do</h1>
@@ -29,7 +25,7 @@ const Home = ({ toDos, addToDo, deleteToDo }) => {
             </form>
             <ul>
                 {toDos.map((toDo) => (
-                    <ToDo key={toDo.id} {...toDo} onDelete={onDelete} />
+                    <ToDo key={toDo.id} {...toDo} />
                 ))}
             </ul>
         </>
@@ -43,7 +39,6 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch, ownProps) => {
     return {
         addToDo: (text) => dispatch(actionCreators.addToDo(text)),
-        deleteToDo: (id) => dispatch(actionCreators.deleteToDo(id)),
     };
 };
 
