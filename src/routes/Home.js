@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
+import ToDo from '../components/ToDo';
 import { actionCreators } from '../store';
 
-const Home = ({ toDos, addToDo }) => {
+const Home = ({ toDos, addToDo, deleteToDo }) => {
     const [text, setText] = useState('');
 
     const onChange = (e) => {
@@ -15,6 +16,10 @@ const Home = ({ toDos, addToDo }) => {
         setText('');
     };
 
+    const onDelete = (targetId) => {
+        deleteToDo(parseInt(targetId));
+    };
+
     return (
         <>
             <h1>To Do</h1>
@@ -22,7 +27,11 @@ const Home = ({ toDos, addToDo }) => {
                 <input value={text} type="text" onChange={onChange} />
                 <button>Add</button>
             </form>
-            <ul>{JSON.stringify(toDos)}</ul>
+            <ul>
+                {toDos.map((toDo) => (
+                    <ToDo key={toDo.id} {...toDo} onDelete={onDelete} />
+                ))}
+            </ul>
         </>
     );
 };
@@ -32,7 +41,10 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => {
-    return { addToDo: (text) => dispatch(actionCreators.addToDo(text)) };
+    return {
+        addToDo: (text) => dispatch(actionCreators.addToDo(text)),
+        deleteToDo: (id) => dispatch(actionCreators.deleteToDo(id)),
+    };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);
